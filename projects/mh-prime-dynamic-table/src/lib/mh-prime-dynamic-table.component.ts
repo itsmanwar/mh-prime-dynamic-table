@@ -63,9 +63,9 @@ export class MhPrimeDynamicTableComponent implements OnInit {
     console.log(this.errors);
 
     this.sizes = [
-      { name: 'Small', class: 'p-datatable-sm' },
-      { name: 'Normal', class: '' },
-      { name: 'Large', class: 'p-datatable-lg' }
+      { name: 'small', class: 'p-datatable-sm' },
+      { name: 'normal', class: '' },
+      { name: 'large', class: 'p-datatable-lg' }
     ];
   }
   //[Event]==================================================================
