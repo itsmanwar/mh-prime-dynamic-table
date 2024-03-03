@@ -66,7 +66,7 @@ handleTableOutput(output: any) {
 | ``numberRowsShown``    	| number                           	| ``10``         	| Number of rows to display per page.                                                   	|
 | ``rowsPerPageOptions`` 	| any[]                            	| ``[10,20,30]`` 	| Array of integer/object values to display  inside rows per page dropdown of paginator 	|
 | ``rowSelectionMode``   	| "none" \| "single" \| "multiple" 	| ``"none"``     	| Specifies the selection mode, valid values are  "single" and "multiple".              	|
-| ``size``               	| "small" \| "normal" \| "large"   	| ``"normal"``   	| Specifies the table size, valid values are "single" and "multiple".                   	|
+| ``size``               	| "small" \| "normal" \| "large"   	| ``"normal"``   	| Specifies the table size, valid values are "small","normal" and "large".                   	|
 | ``actionButtons``      	| ActionButtonConfig[]             	| ``null``       	| Array of object to display action buttons inside rows                                 	|
 
 
