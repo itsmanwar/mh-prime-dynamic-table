@@ -1,5 +1,5 @@
 
-# mh-prime-dynamic-table: Your Data, Your Rules!
+# mh-prime-dynamic-table : Your Data, Your Rules!
 
 Welcome to ***mh-prime-dynamic-table***, where creating dynamic data tables in your Angular project has never been easier or more enjoyable! Powered by *PrimeNG's versatile p-table component, mh-prime-dynamic-table empowers you to effortlessly craft interactive data tables with features like filtering, sorting, and pagination. Let's dive in and unleash the magic of data visualization!
 
@@ -31,7 +31,7 @@ import { MhPrimeDynamicTableModule } from 'mh-prime-dynamic-table';
 })
 export class YourModule { }
 ```
-2.**Use the Dynamic-Table Component:** Drop the `mh-prime-dynamic-table` component into your component template. Flex your creative muscles by passing in your data and configuring your table:
+2.**Use the mh-prime-dynamic-table Component:** Drop the `mh-prime-dynamic-table` component into your component template. Flex your creative muscles by passing in your data and configuring your table:
 ```html
 <mh-prime-dynamic-table
   size="Small"
@@ -235,12 +235,12 @@ Feel the urge to sprinkle some extra magic dust? We'd love to have you on board!
 
 
 ## License: Spread the Love ❤️
-Dynamic-Table is licensed under the MIT License. Share the love, share the code! For more information, check out the [LICENSE]([https://choosealicense.com/licenses/mit/](https://github.com/itsmanwar/mh-prime-dynamic-table/blob/main/LICENSE)) file.
+mh-prime-dynamic-table is licensed under the MIT License. Share the love, share the code! For more information, check out the [LICENSE]([https://choosealicense.com/licenses/mit/](https://github.com/itsmanwar/mh-prime-dynamic-table/blob/main/LICENSE)) file.
 
 
 
 ## Connect with Us! 📡
-For more fun-filled adventures with Dynamic-Table, visit our [GitHub repository](https://github.com/itsmanwar). Let's build something amazing together!
+For more fun-filled adventures with mh-prime-dynamic-table, visit our [GitHub repository](https://github.com/itsmanwar/mh-prime-dynamic-table). Let's build something amazing together!
 ## Author: The Dreamweavers ✨
 Crafted with love by [@manwar](https://github.com/itsmanwar) and a sprinkle of stardust.
 

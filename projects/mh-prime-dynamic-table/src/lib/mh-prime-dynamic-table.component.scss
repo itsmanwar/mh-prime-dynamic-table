@@ -1,0 +1,30 @@
+.custom-badge{
+    border-radius: var(--border-radius);
+    padding: .25em .5rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: .3px;
+}
+
+.custom-badge {
+    &.primary {
+        background: #B3E5FC !important;
+        color: #23547B !important;
+    }
+    &.success{
+        background: #C8E6C9;
+        color: #256029;
+    }
+    &.danger {
+        background: #FFCDD2;
+        color: #c63737;
+    }
+    &.warning {
+        background: #FFD8B2;
+        color: #805b36;
+    }
+}
+.custom-divider {
+    border-top: 5px #f703a5 !important;
+}
