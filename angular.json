@@ -3,5 +3,36 @@
   "version": 1,
   "newProjectRoot": "projects",
   "projects": {
+    "mh-prime-dynamic-table": {
+      "projectType": "library",
+      "root": "projects/mh-prime-dynamic-table",
+      "sourceRoot": "projects/mh-prime-dynamic-table/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/mh-prime-dynamic-table/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/mh-prime-dynamic-table/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/mh-prime-dynamic-table/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/mh-prime-dynamic-table/src/test.ts",
+            "tsConfig": "projects/mh-prime-dynamic-table/tsconfig.spec.json",
+            "karmaConfig": "projects/mh-prime-dynamic-table/karma.conf.js"
+          }
+        }
+      }
+    }
   }
 }
