@@ -122,10 +122,10 @@ export class AppComponent implements OnInit {
   title = 'Dynamic Table Example';
   tableData: DynamicTable<userDetils> | any;
   tableQueryParameters: DynamicTableQueryParameters | any;
-  actionButtonConfig: ActionButtonConfig[] = [];
+  tableActionButton: ActionButtonConfig[] = [];
   constructor(private http: HttpClient) { }
   ngOnInit(): void {
-    this.actionButtonConfig = [
+    this.tableActionButton = [
       {
         buttonIdentifier: 'view',
         class: 'p-button-rounded p-button-raised',
