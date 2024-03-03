@@ -1,9 +1,48 @@
 {
   "name": "mh-prime-dynamic-table",
   "version": "0.0.1",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/itsmanwar/mh-prime-dynamic-table"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Manwar Hossain",
+    "email": "itsmanwar@gmail.com"
+  },
+  "keywords": [
+    "Angular dynamic data table",
+    "PrimeNG datatable component",
+    "Angular datatable generator",
+    "Customizable data table for Angular",
+    "Angular table with filter, sort, pagination",
+    "Dynamic PrimeNG table integration",
+    "Angular data grid solution",
+    "PrimeNG table configuration options",
+    "Seamless data presentation in Angular",
+    "Angular package for interactive tables",
+    "Dynamic table generator for Angular apps",
+    "PrimeNG table wrapper for Angular",
+    "Angular datatable plugin",
+    "Flexible datatable component for Angular",
+    "Advanced table features for Angular apps",
+    "Angular data table with backend pagination",
+    "PrimeNG table integration with server-side pagination",
+    "Angular datatable with efficient backend pagination",
+    "Dynamic data tables with server-side pagination for Angular",
+    "PrimeNG datatable with scalable backend pagination",
+    "Angular package for seamless backend pagination in tables",
+    "Enhanced Angular datatable with server-side pagination",
+    "Angular data table plugin supporting backend pagination",
+    "PrimeNG table component with optimized backend pagination",
+    "Angular datatable solution with backend pagination support"
+  ],
   "peerDependencies": {
     "@angular/common": "^14.0.0",
-    "@angular/core": "^14.0.0"
+    "@angular/core": "^14.0.0",
+    "primeflex": "^3.2.0",
+    "primeicons": "^6.0.1",
+    "primeng": "^14.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.0"
