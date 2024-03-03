@@ -235,7 +235,7 @@ Feel the urge to sprinkle some extra magic dust? We'd love to have you on board!
 
 
 ## License: Spread the Love ❤️
-Dynamic-Table is licensed under the MIT License. Share the love, share the code! For more information, check out the [LICENSE](https://choosealicense.com/licenses/mit/) file.
+Dynamic-Table is licensed under the MIT License. Share the love, share the code! For more information, check out the [LICENSE]([https://choosealicense.com/licenses/mit/](https://github.com/itsmanwar/mh-prime-dynamic-table/blob/main/LICENSE)) file.
 
 
 
