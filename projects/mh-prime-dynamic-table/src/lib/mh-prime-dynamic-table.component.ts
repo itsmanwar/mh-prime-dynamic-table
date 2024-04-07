@@ -9,10 +9,10 @@ import { TableHeader, ActionButtonConfig, FilterParameter, SortParameter, Action
 })
 export class MhPrimeDynamicTableComponent implements OnInit {
   /**
-   * small
-   * normal 
-   * large
-   */
+ * small
+ * normal 
+ * large
+ */
   @Input()
   size: string = '';
   @Input()
@@ -20,11 +20,17 @@ export class MhPrimeDynamicTableComponent implements OnInit {
   @Input()
   data: any;
   @Input()
-  dataCount: number = 0;
+  dataCount!: number;
+  @Input()
+  showPaginator: boolean = false;
   @Input()
   numberRowsShown: number = 10;
   @Input()
   rowsPerPageOptions: any[] = [10, 20, 30];
+  @Input()
+  disableSorting: boolean = false;
+  @Input()
+  disableFiltering: boolean = false;
   @Input()
   actionButtons: ActionButtonConfig[] = [];
   /**
@@ -34,6 +40,9 @@ export class MhPrimeDynamicTableComponent implements OnInit {
    */
   @Input()
   rowSelectionMode: string = 'none';
+
+  @Input()
+  selectedRow: any[] = [];
 
   @Output()
   rowSelect = new EventEmitter<any>();
@@ -52,15 +61,15 @@ export class MhPrimeDynamicTableComponent implements OnInit {
   errors: Message[] = []
 
   ngOnInit(): void {
-    console.log('header', this.headers.length);
-
+    if (this.selectedRow.length > 0) {
+      this.selectedRows = this.selectedRow;
+    }
     if (this.headers.length == 0) {
-      this.errors.push({ severity: 'error', summary: 'Header Miesing!', detail: 'Message Content' });
+      this.errors.push({ severity: 'error', summary: 'Header missing!', detail: '' });
     }
-    if (this.dataCount == 0) {
-      this.errors.push({ severity: 'error', summary: 'Data Count mesing', detail: 'Message Content' });
+    if (this.dataCount === null || this.dataCount === undefined) {
+      this.errors.push({ severity: 'error', summary: 'Data Count missing!', detail: '' });
     }
-    console.log(this.errors);
 
     this.sizes = [
       { name: 'small', class: 'p-datatable-sm' },
@@ -109,7 +118,6 @@ export class MhPrimeDynamicTableComponent implements OnInit {
 
   //[Filter]=================================================================
   onFilter(event: any) {
-    debugger;
     const originalObject = event.filters;
     const convertedFilters: FilterParameter[] = [];
     // Store previously processed filters to avoid duplicates
@@ -162,7 +170,7 @@ export class MhPrimeDynamicTableComponent implements OnInit {
   //[Sorting END]============================================================
   //[Pagination]=============================================================
   onPageChange($event: any) {
-    if (this.pageSize != $event.rows || this.pageIndex != $event.page) {
+    if (this.showPaginator && (this.pageSize != $event.rows || this.pageIndex != $event.page)) {
       this.pageIndex = $event.page;
       this.pageSize = $event.rows;
       this.emitQueryParameterChange();
