@@ -1,5 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { Message } from 'primeng/api';
+import { MenuItem } from 'primeng/api';
+import * as FileSaver from 'file-saver';
 import { TableHeader, ActionButtonConfig, FilterParameter, SortParameter, ActionButtonEvent, DynamicTableQueryParameters, FilterEnum } from './mh-prime-dynamic-table-interface';
 
 @Component({
@@ -58,12 +60,19 @@ export class MhPrimeDynamicTableComponent implements OnInit {
   pageSize: number = 10;
   pageIndex: number = 0;
   sortField: string | any;
-  errors: Message[] = []
+  errors: Message[] = [];
+  items!: MenuItem[];
+  items1!: MenuItem[];
+  @Output() searchKeyChange: EventEmitter<string> = new EventEmitter<string>();
+  searchKey: string = '';
+  cols!: any[];
+  exportColumns!: any[];
 
   ngOnInit(): void {
     if (this.selectedRow.length > 0) {
       this.selectedRows = this.selectedRow;
     }
+    this.exportColumns = this.headers.map(col => ({ title: col.name, dataKey: col.fieldName }));
     if (this.headers.length == 0) {
       this.errors.push({ severity: 'error', summary: 'Header missing!', detail: '' });
     }
@@ -75,6 +84,31 @@ export class MhPrimeDynamicTableComponent implements OnInit {
       { name: 'small', class: 'p-datatable-sm' },
       { name: 'normal', class: '' },
       { name: 'large', class: 'p-datatable-lg' }
+    ];
+    this.items = [
+      {
+        label: 'Export All',
+        icon: 'pi pi-copy',
+        command: () => { this.exportExcel() }
+      },
+      {
+        label: 'Export Selected',
+        icon: 'pi pi-check-square',
+        command: () => { this.exportExcelSelected() }
+      },
+    ];
+
+    this.items1 = [
+      {
+        label: 'Export All',
+        icon: 'pi pi-copy',
+        command: () => { this.exportPdf() }
+      },
+      {
+        label: 'Export Selected',
+        icon: 'pi pi-check-square',
+        command: () => { this.exportPdfSelected() }
+      },
     ];
   }
   //[Event]==================================================================
@@ -202,4 +236,57 @@ export class MhPrimeDynamicTableComponent implements OnInit {
   }
   //[Helper functions END]===================================================
 
+  //[Global Serach]===================================================
+  globalSearch(searchKey: string) {
+    this.searchKeyChange.emit(searchKey);
+  }
+
+
+  //[Export PDF And Excel]===================================================
+  exportPdf() {
+    import("jspdf").then(jsPDF => {
+      import("jspdf-autotable").then(x => {
+        const doc = new jsPDF.default('p', 'px', 'a4');
+        (doc as any).autoTable(this.exportColumns, this.data);
+        doc.save('products.pdf');
+      })
+    })
+  }
+
+  exportPdfSelected() {
+    import("jspdf").then(jsPDF => {
+      import("jspdf-autotable").then(x => {
+        const doc = new jsPDF.default('p', 'px', 'a4');
+        (doc as any).autoTable(this.exportColumns, this.selectedRows);
+        doc.save('products.pdf');
+      })
+    })
+  }
+
+  saveAsExcelFile(buffer: any, fileName: string): void {
+    let EXCEL_TYPE = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
+    let EXCEL_EXTENSION = '.xlsx';
+    const data: Blob = new Blob([buffer], {
+      type: EXCEL_TYPE
+    });
+    FileSaver.saveAs(data, fileName + '_export_' + new Date().getTime() + EXCEL_EXTENSION);
+  }
+
+  exportExcel() {
+    import("xlsx").then(xlsx => {
+      const worksheet = xlsx.utils.json_to_sheet(this.data);
+      const workbook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+      const excelBuffer: any = xlsx.write(workbook, { bookType: 'xlsx', type: 'array' });
+      this.saveAsExcelFile(excelBuffer, "data");
+    });
+  }
+
+  exportExcelSelected() {
+    import("xlsx").then(xlsx => {
+      const worksheet = xlsx.utils.json_to_sheet(this.selectedRows);
+      const workbook = { Sheets: { 'data': worksheet }, SheetNames: ['data'] };
+      const excelBuffer: any = xlsx.write(workbook, { bookType: 'xlsx', type: 'array' });
+      this.saveAsExcelFile(excelBuffer, "data");
+    });
+  }
 }

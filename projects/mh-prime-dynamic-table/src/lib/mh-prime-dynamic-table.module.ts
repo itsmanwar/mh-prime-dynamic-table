@@ -7,6 +7,12 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { DropdownModule } from 'primeng/dropdown';
 import { MessagesModule } from 'primeng/messages';
 import {DividerModule} from 'primeng/divider';
+import {DataViewModule} from 'primeng/dataview';
+import {ToolbarModule} from 'primeng/toolbar';
+import { SplitButtonModule } from 'primeng/splitbutton';
+import {TooltipModule} from 'primeng/tooltip';
+import {FormsModule} from '@angular/forms';
+import {InputTextModule} from 'primeng/inputtext';
 
 @NgModule({
   declarations: [
@@ -19,7 +25,14 @@ import {DividerModule} from 'primeng/divider';
     CheckboxModule,
     DropdownModule,
     DividerModule,
-    MessagesModule
+    MessagesModule,
+    DividerModule,
+    DataViewModule,
+    ToolbarModule,
+    SplitButtonModule,
+    TooltipModule,
+    FormsModule,
+    InputTextModule
   ],
   exports: [
     MhPrimeDynamicTableComponent

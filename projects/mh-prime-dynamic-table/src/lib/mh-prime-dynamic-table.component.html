@@ -1,3 +1,26 @@
+<div class="mb-5">
+    <p-toolbar>
+        <div class="p-toolbar-group-left">
+            <p-splitButton label="Export To Excel" icon="pi pi-file-excel"
+                styleClass="p-button-sm p-button-warning mr-2" pTooltip="Export To Excel" tooltipPosition="top"
+                [model]="items" (onClick)="exportExcel()"></p-splitButton>
+            <p-splitButton label="Export To Pdf" icon="pi pi-file-pdf" styleClass="p-button-sm p-button-danger"
+                pTooltip="Export To Pdf" tooltipPosition="right" [model]="items1"
+                (onClick)="exportPdf()"></p-splitButton>
+        </div>
+        <div class="p-toolbar-group-right">
+            <div class="mr-2">
+                <div class="p-inputgroup">
+                    <input type="text" pInputText placeholder="Search" #searchInput>
+                    <button type="button" pButton pRipple icon="pi pi-search" styleClass="p-button-warn"
+                        (click)="globalSearch(searchInput.value)"></button>
+                </div>
+            </div>
+            <p-button icon="pi pi-filter-slash" styleClass="p-button-success" pTooltip="Clear Filter"
+                tooltipPosition="top" (click)="clearFilters()"></p-button>
+        </div>
+    </p-toolbar>
+</div>
 <ng-container *ngIf="errors.length === 0; else error">
     <p-table
         [columns]="headers"
