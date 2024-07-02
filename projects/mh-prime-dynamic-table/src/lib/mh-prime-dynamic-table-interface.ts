@@ -33,11 +33,12 @@ export interface DynamicTableQueryParameters {
     filterParameters: FilterParameter[];
     sortParameters: SortParameter;
 }
-export interface ActionButtonConfig {
-    lable: string;
-    icon: string;
-    class: string;
-    buttonIdentifier: string;
+export interface ActionButtonConfig<T=any>{
+    lable:string,
+    icon:string,
+    class:string,
+    buttonIdentifier:string,
+    renderButton?: (data:T)=>boolean,
 }
 export interface ActionButtonEvent {
     rowData: any;

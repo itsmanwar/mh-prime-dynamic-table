@@ -13,6 +13,7 @@ import { SplitButtonModule } from 'primeng/splitbutton';
 import {TooltipModule} from 'primeng/tooltip';
 import {FormsModule} from '@angular/forms';
 import {InputTextModule} from 'primeng/inputtext';
+import {PaginatorModule} from 'primeng/paginator';
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import {InputTextModule} from 'primeng/inputtext';
     SplitButtonModule,
     TooltipModule,
     FormsModule,
-    InputTextModule
+    InputTextModule,
+    PaginatorModule
   ],
   exports: [
     MhPrimeDynamicTableComponent
