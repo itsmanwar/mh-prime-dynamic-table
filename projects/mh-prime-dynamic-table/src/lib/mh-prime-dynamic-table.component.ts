@@ -33,7 +33,7 @@ export class MhPrimeDynamicTableComponent implements OnInit,OnChanges {
     @Input()
     actionButtons: ActionButtonConfig[] = [];
     @Input()
-    ChildActionButtons: ActionButtonConfig[] = [];
+    childActionButtons: ActionButtonConfig[] = [];
     /**
      * none
      * single 
@@ -140,7 +140,7 @@ export class MhPrimeDynamicTableComponent implements OnInit,OnChanges {
             this.collapsibleHeaders = collapsibleHeaders;
             if (this.collapsibleHeaders.length > 0 && this.data.childHeaders && this.data.childHeaders.length > 0) {
                 this.errors.push({ severity: 'error', summary: 'The Header should not contain both "collapsibleHeaders" and "childHeaders" properties', detail: '' });
-                return;
+                throw new Error('The Header should not contain both "collapsibleHeaders" and "childHeaders" properties');
             }
             if (this.collapsibleHeaders.length > 0) {
                 this.tableData = this.extractCollapsibleData(this.data);
