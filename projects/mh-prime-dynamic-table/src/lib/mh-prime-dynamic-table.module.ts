@@ -14,6 +14,7 @@ import {TooltipModule} from 'primeng/tooltip';
 import {FormsModule} from '@angular/forms';
 import {InputTextModule} from 'primeng/inputtext';
 import {PaginatorModule} from 'primeng/paginator';
+import { SkeletonModule } from 'primeng/skeleton';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import {PaginatorModule} from 'primeng/paginator';
     TooltipModule,
     FormsModule,
     InputTextModule,
-    PaginatorModule
+    PaginatorModule,
+    SkeletonModule,
   ],
   exports: [
     MhPrimeDynamicTableComponent
