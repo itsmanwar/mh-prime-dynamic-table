@@ -167,7 +167,7 @@
                             </p-columnFilter>
                         </div>
                     </th>
-                    <th *ngIf="ChildActionButtons !== null"></th>
+                    <th *ngIf="childActionButtons !== null"></th>
                 </tr>
             </ng-template>
             <ng-template pTemplate="body" let-rowData let-columns="columns">
@@ -182,8 +182,8 @@
                               'custom-badge ' + getEnumStyle(rowData[col.objectTypeValueField], col.filterEnums)
                             ">{{ rowData[col.fieldName] }}</span>
                     </td>
-                    <td *ngIf="ChildActionButtons !== null">
-                        <span *ngFor="let ChildActionButton of ChildActionButtons; trackBy: trackByFunc">
+                    <td *ngIf="childActionButtons !== null">
+                        <span *ngFor="let ChildActionButton of childActionButtons; trackBy: trackByFunc">
                             <button *ngIf="
                   (ChildActionButton.renderButton && ChildActionButton.renderButton(rowData)) ||
                   !ChildActionButton.renderButton
