@@ -1,6 +1,6 @@
 export interface DynamicTable<T> {
     headers: TableHeader[];
-    expandableHeaders: TableHeader[];
+    childHeaders: TableHeader[];
     data: T[];
     dataCount: number;
 }
@@ -9,7 +9,7 @@ export interface TableHeader {
     name: string;
     dataType: string;
     fieldName: string;
-    expandable: boolean | null;
+    collapsible: boolean | null;
     filterField: string;
     isSortable: boolean;
     isFilterable: boolean;
@@ -18,7 +18,7 @@ export interface TableHeader {
 }
 export interface HeaderGroups {
     headers: TableHeader[];
-    expandableHeaders: TableHeader[];
+    collapsibleHeaders: TableHeader[];
 }
 export interface ExpandedRows {
     [key: string]: boolean;

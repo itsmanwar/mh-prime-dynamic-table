@@ -1,211 +1,226 @@
 <ng-container *ngIf="errors.length === 0; else error">
-  <div class="mb-3">
-      <p-toolbar *ngIf="showTopMenubar">
-          <div class="p-toolbar-group-left">
-              <p-splitButton label="Export To Excel" icon="pi pi-file-excel"
-                  styleClass="p-button-sm p-button-warning mr-2" pTooltip="Export To Excel" tooltipPosition="top"
-                  [model]="exportExcelSplitButtons" (onClick)="exportExcel()"></p-splitButton>
-              <p-splitButton label="Export To Pdf" icon="pi pi-file-pdf" styleClass="p-button-sm p-button-danger"
-                  pTooltip="Export To Pdf" tooltipPosition="right" [model]="exportPdfSplitButtons"
-                  (onClick)="exportPdf()"></p-splitButton>
-          </div>
-          <div class="p-toolbar-group-right">
-              <div class="mr-2">
-                  <div class="p-inputgroup" *ngIf="showGlobalSearch">
-                      <input type="text" pInputText placeholder="Search" #searchInput />
-                      <button type="button" pButton pRipple icon="pi pi-search" styleClass="p-button-warn"
-                          (click)="globalSearch(searchInput.value)"></button>
-                  </div>
-              </div>
-              <!-- <p-button icon="pi pi-filter-slash" styleClass="p-button-success" pTooltip="Clear Filter" tooltipPosition="top" (click)="clearFilters()"></p-button> -->
-          </div>
-      </p-toolbar>
-  </div>
-  <ng-container *ngIf="isLoading && !columnDataLoading; else showLoader">
-      <p-table [value]="lodingTable">
-          <ng-template pTemplate="header">
-              <tr>
-                  <th><p-skeleton></p-skeleton></th>
-                  <th><p-skeleton></p-skeleton></th>
-                  <th><p-skeleton></p-skeleton></th>
-                  <th><p-skeleton></p-skeleton></th>
-                  <th><p-skeleton></p-skeleton></th>
-                  <th><p-skeleton></p-skeleton></th>
-              </tr>
-          </ng-template>
-          <ng-template pTemplate="body" let-columns>
-              <tr>
-                  <td><p-skeleton></p-skeleton></td>
-                  <td><p-skeleton></p-skeleton></td>
-                  <td><p-skeleton></p-skeleton></td>
-                  <td><p-skeleton></p-skeleton></td>
-                  <td><p-skeleton></p-skeleton></td>
-                  <td><p-skeleton></p-skeleton></td>
-              </tr>
-          </ng-template>
-      </p-table>
-  </ng-container>
-  <ng-template #showLoader>
-      <p-table id="myTable" [columns]="nonExpandableHeaders" dataKey="uniqueId" [expandedRowKeys]="expandedRows"
-          [value]="tableData" [resizableColumns]="true" (onSort)="onSortChange($event)" (onFilter)="onFilter($event)"
-          [(selection)]="selectedRows" (selectionChange)="emitRowSelectEvent()" [styleClass]="getTableSizeClass(size)"
-          tableStyleClass="tableBorder">
-          <ng-template pTemplate="header" let-columns>
-              <tr>
-                  <th style="width: 3rem" *ngIf="expandableHeaders.length > 0">
-                      <button type="button" pButton pRipple class="p-button-text p-button-plain p-button-sm"
-                          (click)="expandAll()" style="height: 1rem"
-                          [pTooltip]="isExpanded?'Collapse All':'Expand All'" tooltipPosition="top"
-                          [icon]="isExpanded ? 'pi pi-angle-double-down' : 'pi pi-angle-double-right'"></button>
-                  </th>
-                  <th style="width: 4rem" *ngIf="rowSelectionMode === 'multiple'">
-                      <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
-                  </th>
-                  <th [pSortableColumn]="col.isSortable && col.dataType !== 'html' && !disableSorting ? col.fieldName : null" pResizableColumn
-                      *ngFor="let col of columns" style="min-width: 5rem">
-                      <div class="flex justify-content-between align-items-center">
-                          {{ col.name }}
-                          <p-sortIcon *ngIf="col.isSortable && col.dataType !== 'html' && !disableSorting"
-                              field="{{ col.fieldName }}"></p-sortIcon>
-                          <p-columnFilter *ngIf="col.dataType !== 'object' && col.dataType !== 'html' && col.isFilterable && !disableFiltering"
-                              [showAddButton]="false" type="{{ col.dataType }}" field="{{ col.fieldName }}"
-                              display="menu" class="ml-auto"></p-columnFilter>
-                          <p-columnFilter *ngIf="col.dataType === 'object' && col.dataType !== 'html' && col.isFilterable && !disableFiltering"
-                              field="{{ col.fieldName }}" matchMode="equals" display="menu" [showAddButton]="false">
-                              <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                                  <p-dropdown [options]="col.filterEnums" (onChange)="filter($event.value)"
-                                      placeholder="Any" [style]="{ 'min-width': '12rem' }">
-                                      <ng-template let-option pTemplate="item">
-                                          <span [class]="'custom-badge ' + option.styleClass">{{ option.label
-                                              }}</span>
-                                      </ng-template>
-                                  </p-dropdown>
-                              </ng-template>
-                          </p-columnFilter>
-                      </div>
-                  </th>
-                  <th pResizableColumn *ngIf="actionButtons !== null"></th>
-              </tr>
-          </ng-template>
-          <ng-template pTemplate="body" let-rowData let-columns="columns" let-expanded="expanded">
-              <tr class="spacer" *ngIf="!isLoading">
-                  <td *ngIf="expandableHeaders.length > 0">
-                      <button type="button" pButton pRipple [pRowToggler]="rowData"
-                          class="p-button-text p-button-plain p-button-sm" style="height: 1rem"
-                          [pTooltip]="expanded?'Collapse':'Expand'" tooltipPosition="top"
-                          [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
-                  </td>
-                  <td *ngIf="rowSelectionMode === 'single' || rowSelectionMode === 'multiple'">
-                      <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
-                  </td>
-                  <td *ngFor="let col of columns">
-                      <ng-container *ngIf="col.dataType !== 'object'">
-                          <span *ngIf="col.dataType !== 'html'">{{ rowData[col.fieldName] }}</span>
-                          <div *ngIf="col.dataType === 'html'" [innerHTML]="sanitizeHtml(rowData[col.fieldName])"></div>
-                        </ng-container>
-                        
-                        <span *ngIf="col.dataType === 'object'" [class]="
-                            'custom-badge ' + getEnumStyle(rowData[col.objectTypeValueField], col.filterEnums)
-                          ">{{ rowData[col.fieldName] }}</span>
-                  </td>
-                  <td>
-                      <span *ngFor="let actionButton of actionButtons; trackBy: trackByFunc">
-                          <button *ngIf="
-                (actionButton.renderButton && actionButton.renderButton(rowData)) ||
-                !actionButton.renderButton
-              " pButton type="button" [icon]="actionButton.icon" [label]="actionButton.lable" class="ml-2"
-                              [class]="actionButton.class"
-                              (click)="emitButtonClickEvent(rowData, actionButton.buttonIdentifier)"></button>
-                      </span>
-                  </td>
-              </tr>
-              <tr class="spacer" *ngIf="isLoading && columnDataLoading">
-                  <td>
-                      <p-skeleton></p-skeleton>
-                  </td>
-                  <td>
-                      <p-skeleton
-                          *ngIf="rowSelectionMode === 'single' || rowSelectionMode === 'multiple'"></p-skeleton>
-                  </td>
-                  <td *ngFor="let col of columns">
-                      <p-skeleton></p-skeleton>
-                  </td>
-                  <td>
-                      <p-skeleton *ngIf="actionButtons !== null"></p-skeleton>
-                  </td>
-              </tr>
-          </ng-template>
-          <ng-template pTemplate="rowexpansion" let-data>
-              <tr>
-                  <td [attr.colspan]="numberOfColspan">
-                      <!-- <div> -->
-                      <p-table id="myTable" [columns]="expandableHeaders" dataKey="uniqueId" [value]="data.expendable"
-                          [resizableColumns]="true" (onSort)="onSortChange($event)" (onFilter)="onFilter($event)"
-                          tableStyleClass="tableBorder">
-                          <ng-template pTemplate="header" let-columns>
-              <tr>
-                  <th [pSortableColumn]="col.isSortable && col.dataType !== 'html' && !disableSorting ? col.fieldName : null" pResizableColumn
-                      *ngFor="let col of columns" style="min-width: 5rem">
-                      <div class="flex justify-content-between align-items-center">
-                          {{ col.name }}
-                          <p-sortIcon *ngIf="col.isSortable && col.dataType !== 'html' && !disableSorting"
-                              field="{{ col.fieldName }}"></p-sortIcon>
-                          <p-columnFilter *ngIf="col.dataType !== 'object' && col.dataType !== 'html' && col.isFilterable && !disableFiltering"
-                              [showAddButton]="false" type="{{ col.dataType }}" field="{{ col.fieldName }}"
-                              display="menu" class="ml-auto"></p-columnFilter>
-                          <p-columnFilter *ngIf="col.dataType === 'object' && col.dataType !== 'html' && col.isFilterable && !disableFiltering"
-                              field="{{ col.fieldName }}" matchMode="equals" display="menu" [showAddButton]="false">
-                              <ng-template pTemplate="filter" let-value let-filter="filterCallback">
-                                  <p-dropdown [options]="col.filterEnums" (onChange)="filter($event.value)"
-                                      placeholder="Any" [style]="{ 'min-width': '12rem' }">
-                                      <ng-template let-option pTemplate="item">
-                                          <span [class]="'custom-badge ' + option.styleClass">{{ option.label
-                                              }}</span>
-                                      </ng-template>
-                                  </p-dropdown>
-                              </ng-template>
-                          </p-columnFilter>
-                      </div>
-                  </th>
-              </tr>
-          </ng-template>
-          <ng-template pTemplate="body" let-rowData let-columns="columns">
-              <tr class="spacer">
-                  <td *ngFor="let col of columns">
-                      <ng-container *ngIf="col.dataType !== 'object'">
-                          <span *ngIf="col.dataType !== 'html'">{{ rowData[col.fieldName] }}</span>
-                          <div *ngIf="col.dataType === 'html'" [innerHTML]="sanitizeHtml(rowData[col.fieldName])"></div>
-                        </ng-container>
-                        
-                        <span *ngIf="col.dataType === 'object'" [class]="
-                            'custom-badge ' + getEnumStyle(rowData[col.objectTypeValueField], col.filterEnums)
-                          ">{{ rowData[col.fieldName] }}</span>
-                  </td>
-                  <!-- <td> <span *ngFor="let actionButton of actionButtons;trackBy: trackByFunc" > <button *ngIf="(actionButton.renderButton && actionButton.renderButton(rowData)) || !actionButton.renderButton" pButton type="button" [icon]="actionButton.icon" [label]="actionButton.lable" class="ml-2" [class]="actionButton.class" (click)="emitButtonClickEvent(rowData,actionButton.buttonIdentifier)"> </button> </span> </td> -->
-              </tr>
-          </ng-template>
-          <ng-template pTemplate="emptymessage">
-              <tr>
-                  <td [attr.colspan]="numberOfColspan">No Result found.</td>
-              </tr>
-          </ng-template>
-      </p-table>
-      <!-- </div> -->
-      </td>
-      </tr>
-  </ng-template>
-  <ng-template pTemplate="emptymessage">
-      <tr>
-          <td [attr.colspan]="numberOfColspan">No Result found.</td>
-      </tr>
-  </ng-template>
-  </p-table>
-  <p-paginator [rows]="numberRowsShown" [totalRecords]="dataCount" [rowsPerPageOptions]="rowsPerPageOptions"
-      (onPageChange)="onPageChange($event)"></p-paginator>
-  </ng-template>
+    <div class="mb-3">
+        <p-toolbar *ngIf="showTopMenubar">
+            <div class="p-toolbar-group-left">
+                <p-splitButton label="Export To Excel" icon="pi pi-file-excel"
+                    styleClass="p-button-sm p-button-warning mr-2" pTooltip="Export To Excel" tooltipPosition="top"
+                    [model]="exportExcelSplitButtons" (onClick)="exportExcel()"></p-splitButton>
+                <p-splitButton label="Export To Pdf" icon="pi pi-file-pdf" styleClass="p-button-sm p-button-danger"
+                    pTooltip="Export To Pdf" tooltipPosition="right" [model]="exportPdfSplitButtons"
+                    (onClick)="exportPdf()"></p-splitButton>
+            </div>
+            <div class="p-toolbar-group-right">
+                <div class="mr-2">
+                    <div class="p-inputgroup" *ngIf="showGlobalSearch">
+                        <input type="text" pInputText placeholder="Search" #searchInput />
+                        <button type="button" pButton pRipple icon="pi pi-search" styleClass="p-button-warn"
+                            (click)="globalSearch(searchInput.value)"></button>
+                    </div>
+                </div>
+                <!-- <p-button icon="pi pi-filter-slash" styleClass="p-button-success" pTooltip="Clear Filter" tooltipPosition="top" (click)="clearFilters()"></p-button> -->
+            </div>
+        </p-toolbar>
+    </div>
+    <ng-container *ngIf="isLoading && !columnDataLoading; else showLoader">
+        <p-table [value]="lodingTable">
+            <ng-template pTemplate="header">
+                <tr>
+                    <th><p-skeleton></p-skeleton></th>
+                    <th><p-skeleton></p-skeleton></th>
+                    <th><p-skeleton></p-skeleton></th>
+                    <th><p-skeleton></p-skeleton></th>
+                    <th><p-skeleton></p-skeleton></th>
+                    <th><p-skeleton></p-skeleton></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-columns>
+                <tr>
+                    <td><p-skeleton></p-skeleton></td>
+                    <td><p-skeleton></p-skeleton></td>
+                    <td><p-skeleton></p-skeleton></td>
+                    <td><p-skeleton></p-skeleton></td>
+                    <td><p-skeleton></p-skeleton></td>
+                    <td><p-skeleton></p-skeleton></td>
+                </tr>
+            </ng-template>
+        </p-table>
+    </ng-container>
+    <ng-template #showLoader>
+        <p-table id="myTable" [columns]="nonCollapsibleHeaders" dataKey="id" [expandedRowKeys]="expandedRows"
+            [value]="tableData" [resizableColumns]="true" (onSort)="onSortChange($event)" (onFilter)="onFilter($event)"
+            [(selection)]="selectedRows" (selectionChange)="emitRowSelectEvent()" [styleClass]="getTableSizeClass(size)"
+            tableStyleClass="tableBorder">
+            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th style="width: 3rem" *ngIf="collapsibleHeaders.length > 0">
+                        <button type="button" pButton pRipple class="p-button-text p-button-plain p-button-sm"
+                            (click)="expandAll()" style="height: 1rem"
+                            [pTooltip]="isExpanded?'Collapse All':'Expand All'" tooltipPosition="top"
+                            [icon]="isExpanded ? 'pi pi-angle-double-down' : 'pi pi-angle-double-right'"></button>
+                    </th>
+                    <th style="width: 4rem" *ngIf="rowSelectionMode === 'multiple'||rowSelectionMode==='single'">
+                        <p-tableHeaderCheckbox  *ngIf="rowSelectionMode === 'multiple'"></p-tableHeaderCheckbox>
+                    </th>
+                    <th [pSortableColumn]="col.isSortable && col.dataType !== 'html' && !disableSorting ? col.fieldName : null" pResizableColumn
+                        *ngFor="let col of columns" style="min-width: 5rem">
+                        <div class="flex justify-content-between align-items-center">
+                            {{ col.name }}
+                            <p-sortIcon *ngIf="col.isSortable && col.dataType !== 'html' && !disableSorting"
+                                field="{{ col.fieldName }}"></p-sortIcon>
+                            <p-columnFilter *ngIf="col.dataType !== 'object' && col.dataType !== 'html' && col.isFilterable && !disableFiltering"
+                                [showAddButton]="false" type="{{ col.dataType }}" field="{{ col.fieldName }}"
+                                display="menu" class="ml-auto"></p-columnFilter>
+                            <p-columnFilter *ngIf="col.dataType === 'object' && col.dataType !== 'html' && col.isFilterable && !disableFiltering"
+                                field="{{ col.fieldName }}" matchMode="equals" display="menu" [showAddButton]="false">
+                                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                                    <p-dropdown [options]="col.filterEnums" (onChange)="filter($event.value)"
+                                        placeholder="Any" [style]="{ 'min-width': '12rem' }">
+                                        <ng-template let-option pTemplate="item">
+                                            <span [class]="'custom-badge ' + option.styleClass">{{ option.label
+                                                }}</span>
+                                        </ng-template>
+                                    </p-dropdown>
+                                </ng-template>
+                            </p-columnFilter>
+                        </div>
+                    </th>
+                    <th pResizableColumn *ngIf="actionButtons !== null"></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns" let-expanded="expanded">
+                <tr class="spacer" *ngIf="!isLoading">
+                    <td *ngIf="collapsibleHeaders.length > 0">
+                        <button type="button" pButton pRipple [pRowToggler]="rowData"
+                            class="p-button-text p-button-plain p-button-sm" style="height: 1rem"
+                            [pTooltip]="expanded?'Collapse':'Expand'" tooltipPosition="top"
+                            [icon]="expanded ? 'pi pi-chevron-down' : 'pi pi-chevron-right'"></button>
+                    </td>
+                    <td *ngIf="rowSelectionMode === 'single' || rowSelectionMode === 'multiple'">
+                        <p-tableCheckbox [value]="rowData"></p-tableCheckbox>
+                    </td>
+                    <td *ngFor="let col of columns">
+                        <ng-container *ngIf="col.dataType !== 'object'">
+                            <span *ngIf="col.dataType !== 'html'">{{ rowData[col.fieldName] }}</span>
+                            <div *ngIf="col.dataType === 'html'" [innerHTML]="sanitizeHtml(rowData[col.fieldName])"></div>
+                          </ng-container>
+                          
+                          <span *ngIf="col.dataType === 'object'" [class]="
+                              'custom-badge ' + getEnumStyle(rowData[col.objectTypeValueField], col.filterEnums)
+                            ">{{ rowData[col.fieldName] }}</span>
+                    </td>
+                    <td *ngIf="actionButtons !== null">
+                        <span *ngFor="let actionButton of actionButtons; trackBy: trackByFunc">
+                            <button *ngIf="
+                  (actionButton.renderButton && actionButton.renderButton(rowData)) ||
+                  !actionButton.renderButton
+                " pButton type="button" [icon]="actionButton.icon" [label]="actionButton.lable" class="ml-2"
+                                [class]="actionButton.class"
+                                (click)="emitButtonClickEvent(rowData, actionButton.buttonIdentifier)"></button>
+                        </span>
+                    </td>
+                </tr>
+                <tr class="spacer" *ngIf="isLoading && columnDataLoading">
+                    <td>
+                        <p-skeleton></p-skeleton>
+                    </td>
+                    <td>
+                        <p-skeleton
+                            *ngIf="rowSelectionMode === 'single' || rowSelectionMode === 'multiple'"></p-skeleton>
+                    </td>
+                    <td *ngFor="let col of columns">
+                        <p-skeleton></p-skeleton>
+                    </td>
+                    <td>
+                        <p-skeleton *ngIf="actionButtons !== null"></p-skeleton>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="rowexpansion" let-data>
+                <tr>
+                    <td [attr.colspan]="numberOfColspan">
+                        <!-- <div> -->
+                        <p-table id="myTable" [columns]="collapsibleHeaders" dataKey="id" [value]="data.childData"
+                            [resizableColumns]="true" (onSort)="onSortChange($event)" (onFilter)="onFilter($event)"
+                            tableStyleClass="tableBorder">
+                            <ng-template pTemplate="header" let-columns>
+                <tr>
+                    <th [pSortableColumn]="col.isSortable && col.dataType !== 'html' && !disableSorting ? col.fieldName : null" pResizableColumn
+                        *ngFor="let col of columns" style="min-width: 5rem">
+                        <div class="flex justify-content-between align-items-center">
+                            {{ col.name }}
+                            <p-sortIcon *ngIf="col.isSortable && col.dataType !== 'html' && !disableSorting"
+                                field="{{ col.fieldName }}"></p-sortIcon>
+                            <p-columnFilter *ngIf="col.dataType !== 'object' && col.dataType !== 'html' && col.isFilterable && !disableFiltering"
+                                [showAddButton]="false" type="{{ col.dataType }}" field="{{ col.fieldName }}"
+                                display="menu" class="ml-auto"></p-columnFilter>
+                            <p-columnFilter *ngIf="col.dataType === 'object' && col.dataType !== 'html' && col.isFilterable && !disableFiltering"
+                                field="{{ col.fieldName }}" matchMode="equals" display="menu" [showAddButton]="false">
+                                <ng-template pTemplate="filter" let-value let-filter="filterCallback">
+                                    <p-dropdown [options]="col.filterEnums" (onChange)="filter($event.value)"
+                                        placeholder="Any" [style]="{ 'min-width': '12rem' }">
+                                        <ng-template let-option pTemplate="item">
+                                            <span [class]="'custom-badge ' + option.styleClass">{{ option.label
+                                                }}</span>
+                                        </ng-template>
+                                    </p-dropdown>
+                                </ng-template>
+                            </p-columnFilter>
+                        </div>
+                    </th>
+                    <th *ngIf="ChildActionButtons !== null"></th>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-rowData let-columns="columns">
+                <tr class="spacer">
+                    <td *ngFor="let col of columns">
+                        <ng-container *ngIf="col.dataType !== 'object'">
+                            <span *ngIf="col.dataType !== 'html'">{{ rowData[col.fieldName] }}</span>
+                            <div *ngIf="col.dataType === 'html'" [innerHTML]="sanitizeHtml(rowData[col.fieldName])"></div>
+                          </ng-container>
+                          
+                          <span *ngIf="col.dataType === 'object'" [class]="
+                              'custom-badge ' + getEnumStyle(rowData[col.objectTypeValueField], col.filterEnums)
+                            ">{{ rowData[col.fieldName] }}</span>
+                    </td>
+                    <td *ngIf="ChildActionButtons !== null">
+                        <span *ngFor="let ChildActionButton of ChildActionButtons; trackBy: trackByFunc">
+                            <button *ngIf="
+                  (ChildActionButton.renderButton && ChildActionButton.renderButton(rowData)) ||
+                  !ChildActionButton.renderButton
+                " pButton type="button" [icon]="ChildActionButton.icon" [label]="ChildActionButton.lable" class="ml-2"
+                                [class]="ChildActionButton.class"
+                                (click)="emitButtonClickEvent(rowData, ChildActionButton.buttonIdentifier)"></button>
+                        </span>
+                    </td>
+                </tr>
+            </ng-template>
+            <ng-template pTemplate="emptymessage">
+                <tr>
+                    <td [attr.colspan]="numberOfColspan">No Result found.</td>
+                </tr>
+            </ng-template>
+        </p-table>
+        <!-- </div> -->
+        </td>
+        </tr>
+    </ng-template>
+    <ng-template pTemplate="emptymessage">
+        <tr>
+            <td [attr.colspan]="numberOfColspan">No Result found.</td>
+        </tr>
+    </ng-template>
+    </p-table>
+    <p-paginator [rows]="numberRowsShown" [totalRecords]="dataCount" [rowsPerPageOptions]="rowsPerPageOptions"
+        (onPageChange)="onPageChange($event)"></p-paginator>
+    </ng-template>
 </ng-container>
 <ng-template #error>
-  <p-divider align="center" type="dashed">mh-prime-dynamic-table</p-divider>
-  <p-messages [(value)]="errors" [enableService]="false" [closable]="false"></p-messages>
-  <p-divider align="center" type="dashed"></p-divider>
+    
+    <p-divider align="center">
+        <div class="inline-flex align-items-center"></div>
+        <i class="pi pi-table mr-2"></i>
+        <b>mh-prime-dynamic-table</b>
+    </p-divider>
+    <p-messages [(value)]="errors" [enableService]="false" [closable]="false"></p-messages>
+    <p-divider align="center" type="dashed"></p-divider>
 </ng-template>

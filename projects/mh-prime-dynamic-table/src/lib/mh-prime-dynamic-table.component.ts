@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges, TrackByFunction } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, TrackByFunction } from '@angular/core';
 import { Message } from 'primeng/api';
 import { MenuItem } from 'primeng/api';
 import * as FileSaver from 'file-saver';
@@ -6,28 +6,24 @@ import { TableHeader, ActionButtonConfig, FilterParameter, SortParameter, Action
 import * as DOMPurify from 'dompurify';
 
 @Component({
-  selector: 'mh-prime-dynamic-table',
-  templateUrl: './mh-prime-dynamic-table.component.html',
-  styleUrls: ['./mh-prime-dynamic-table.component.scss']
+    selector: 'mh-prime-dynamic-table',
+    templateUrl: './mh-prime-dynamic-table.component.html',
+    styleUrls: ['./mh-prime-dynamic-table.component.scss']
 })
-export class MhPrimeDynamicTableComponent implements OnInit {
+export class MhPrimeDynamicTableComponent implements OnInit,OnChanges {
     /**
-   * small
-   * normal 
-   * large
-   */
+  * small
+  * normal 
+  * large
+  */
     @Input()
     size: string = '';
     @Input()
-    headers: TableHeader[] = [];
-    @Input()
     data: any;
-    @Input()
-    dataCount!: number;
     @Input()
     showPaginator: boolean = false;
     @Input()
-    numberRowsShown: number = 10;
+    numberRowsShown: number = 5;
     @Input()
     rowsPerPageOptions: any[] = [10, 20, 30];
     @Input()
@@ -36,6 +32,8 @@ export class MhPrimeDynamicTableComponent implements OnInit {
     disableFiltering: boolean = false;
     @Input()
     actionButtons: ActionButtonConfig[] = [];
+    @Input()
+    ChildActionButtons: ActionButtonConfig[] = [];
     /**
      * none
      * single 
@@ -61,6 +59,8 @@ export class MhPrimeDynamicTableComponent implements OnInit {
     @Output()
     searchKeyChange: EventEmitter<string> = new EventEmitter<string>();
 
+    headers: TableHeader[] = [];
+    dataCount!: number;
     sizes!: any[];
     filterParams: FilterParameter[] = [];
     selectedRows: any;
@@ -74,15 +74,15 @@ export class MhPrimeDynamicTableComponent implements OnInit {
     exportPdfSplitButtons!: MenuItem[];
     exportColumns!: any[];
     tableData: any;
-    expandableHeadersData: any;
-    nonExpandableHeaders: any;
-    expandableHeaders: TableHeader[] = [];
-    expandableHeaderUniqueId: string = '';
+    collapsibleHeadersData: any;
+    nonCollapsibleHeaders: any;
+    collapsibleHeaders: TableHeader[] = [];
+    collapsibleHeaderUniqueId: string = '';
     isExpanded: boolean = false;
     expandedRows: ExpandedRows = {};
-    lodingTable: any[] = ['', '', '', '', ''];
+    lodingTable: string[] = [];
     numberOfColspan: number = 0;
-    uniqueIdCounter: number = 0;
+    // uniqueIdCounter: number = 0;
     columnDataLoading: boolean = false;
     ngOnInit(): void {
         if (this.selectedRow.length > 0) {
@@ -119,6 +119,8 @@ export class MhPrimeDynamicTableComponent implements OnInit {
                 command: () => { this.exportPdfSelected() }
             },
         ];
+        this.lodingTable = Array.from({ length: this.numberRowsShown }, () => "");
+
     }
     ngOnChanges(changes: SimpleChanges): void {
         if (changes['data'] && changes['data'].previousValue !== changes['data'].currentValue) {
@@ -126,21 +128,29 @@ export class MhPrimeDynamicTableComponent implements OnInit {
             this.headers = this.data.headers;
             if (this.headers.length == 0) {
                 this.errors.push({ severity: 'error', summary: 'Header missing!', detail: '' });
-                return;
+                throw new Error('Header missing!');
             }
             this.dataCount = this.data.dataCount;
             if (this.dataCount === null || this.dataCount === undefined) {
                 this.errors.push({ severity: 'error', summary: 'Data Count missing!', detail: '' });
+                throw new Error('Data Count missing!!');
+            }
+            const { headers: nonCollapsibleHeaders, collapsibleHeaders } = this.splitHeaders(this.headers);
+            this.nonCollapsibleHeaders = nonCollapsibleHeaders;
+            this.collapsibleHeaders = collapsibleHeaders;
+            if (this.collapsibleHeaders.length > 0 && this.data.childHeaders && this.data.childHeaders.length > 0) {
+                this.errors.push({ severity: 'error', summary: 'The Header should not contain both "collapsibleHeaders" and "childHeaders" properties', detail: '' });
                 return;
             }
-            const { headers: nonExpandableHeaders, expandableHeaders } = this.splitHeaders(this.headers);
-            this.nonExpandableHeaders = nonExpandableHeaders;
-            this.expandableHeaders = expandableHeaders;
-            this.expandableHeaderUniqueId = Object.keys(this.expandableHeaders)[0];
+            if (this.collapsibleHeaders.length > 0) {
+                this.tableData = this.extractCollapsibleData(this.data);
+            }
+            if (this.collapsibleHeaders.length === 0) {
+                this.collapsibleHeaders = (this.data.childHeaders && this.data.childHeaders.length > 0) ? this.data.childHeaders : [];
+                this.tableData = this.data.data;
+            }
             this.exportColumns = this.headers.map(col => ({ title: col.name, dataKey: col.fieldName }));
-            this.tableData = (expandableHeaders.length > 0) ? this.extractExpandableData(this.data) : this.data.data;
-            this.data = this.data.data;
-            this.numberOfColspan = this.nonExpandableHeaders.length + this.expandableHeaders.length +
+            this.numberOfColspan = this.nonCollapsibleHeaders.length + this.collapsibleHeaders.length +
                 (this.rowSelectionMode === 'single' || this.rowSelectionMode === 'multiple' ? 1 : 0) +
                 (this.actionButtons.length > 0 ? 1 : 0);
             this.columnDataLoading = false;
@@ -330,32 +340,29 @@ export class MhPrimeDynamicTableComponent implements OnInit {
     };
     splitHeaders(headers: TableHeader[]): HeaderGroups {
         const headersList: TableHeader[] = [];
-        const expandableHeadersList: TableHeader[] = [];
+        const collapsibleHeadersList: TableHeader[] = [];
 
         headers.forEach(header => {
-            if (header.expandable) {
-                expandableHeadersList.push(header);
+            if (header.collapsible) {
+                collapsibleHeadersList.push(header);
             } else {
                 headersList.push(header);
             }
         });
         return {
             headers: headersList,
-            expandableHeaders: expandableHeadersList
+            collapsibleHeaders: collapsibleHeadersList
         };
     }
-    private extractExpandableData(data: any): any[] {
-        if (data.data && this.expandableHeaders.length > 0) {
-            const filterKeys = new Set(this.expandableHeaders.map((h: any) => h.fieldName));
+    private extractCollapsibleData(data: any): any[] {
+        if (data.data && this.collapsibleHeaders.length > 0) {
+            const filterKeys = new Set(this.collapsibleHeaders.map((h: any) => h.fieldName));
             return data.data.map((d: any) => {
                 const expendable: Record<string, any> = {};
-                for (const header of this.expandableHeaders) {
+                for (const header of this.collapsibleHeaders) {
                     expendable[header.fieldName] = d[header.fieldName];
                 }
                 const dynamicObject = Object.entries(d).reduce((acc, [key, value], index) => {
-                    if (index === 0) {
-                        acc['uniqueId'] = this.generateUniqueId();
-                    }
                     if (!filterKeys.has(key)) {
                         acc[key] = value;
                     }
@@ -363,7 +370,7 @@ export class MhPrimeDynamicTableComponent implements OnInit {
                 }, {} as Record<string, any>);
                 return {
                     ...dynamicObject,
-                    expendable: [expendable]
+                    childData: [expendable]
                 };
             });
         }
@@ -371,7 +378,7 @@ export class MhPrimeDynamicTableComponent implements OnInit {
     }
     expandAll() {
         if (!this.isExpanded) {
-            this.tableData.forEach((data: any) => data && data.id ? this.expandedRows[data.uniqueId] = true : '');
+            this.tableData.forEach((data: any) => data && data.id ? this.expandedRows[data.id] = true : '');
         } else {
             this.expandedRows = {};
         }
@@ -379,9 +386,6 @@ export class MhPrimeDynamicTableComponent implements OnInit {
     }
     sanitizeHtml(html: string): string {
         return DOMPurify.sanitize(html);
-    }
-    generateUniqueId() {
-        return '_' + (this.uniqueIdCounter++).toString(36) + Math.random().toString(36).substr(2, 9);
     }
     //[Helper functions END]===================================================
 }
