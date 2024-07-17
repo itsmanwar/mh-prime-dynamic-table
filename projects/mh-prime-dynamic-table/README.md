@@ -34,17 +34,18 @@ export class YourModule { }
 2.**Use the mh-prime-dynamic-table Component:** Drop the `mh-prime-dynamic-table` component into your component template. Flex your creative muscles by passing in your data and configuring your table:
 ```html
 <mh-prime-dynamic-table
-  size="Small"
+  size="small"
   [numberRowsShown]="10"
   [rowsPerPageOptions]="[10, 30, 50]"
-  [headers]="tableData.headers"
   [data]="tableData.data"
-  rowSelectionMode="multiple"
-  [dataCount]="tableData.dataCount"
+  rowSelectionMode="multiple",
+  [isLoading]="isTableDataLoading"
   [actionButtons]="tableActionButton"
+  [childActionButtons]="tableChildActionButton"
   (rowSelect)="handleRowSelection($event)"
   (actionButtonClicked)="handleButtonClick($event)"
-  (queryParameterChange)="handQueryParameterChange($event)"
+  (queryParameterChange)="handQueryParameterChange($event)",
+  (searchKeyChange)="handsearchKeyChange($event)",
 >
 </mh-prime-dynamic-table>
 ```
@@ -58,26 +59,32 @@ handleTableOutput(output: any) {
 ## Properties & Emitters: Your Playground 🔣
 - **Properties:**
 
-| **Name**             	| **Type**                         	| **Default**    	| **Description**                                                                       	|
-|----------------------	|----------------------------------	|----------------	|---------------------------------------------------------------------------------------	|
-| ``headers``            	| TableHeader[]                    	| ``null``       	| An array of objects to represent  dynamic headers.                                    	|
-| ``data``               	| any[]                            	| ``null``       	| An array of objects to display.                                                       	|
-| ``dataCount``          	| number                           	| ``null``       	| Number of total records                                                               	|
-| ``numberRowsShown``    	| number                           	| ``10``         	| Number of rows to display per page.                                                   	|
-| ``rowsPerPageOptions`` 	| any[]                            	| ``[10,20,30]`` 	| Array of integer/object values to display  inside rows per page dropdown of paginator 	|
-| ``rowSelectionMode``   	| "none" \| "single" \| "multiple" 	| ``"none"``     	| Specifies the selection mode, valid values are  "single" and "multiple".              	|
-| ``size``               	| "small" \| "normal" \| "large"   	| ``"normal"``   	| Specifies the table size, valid values are "single" and "multiple".                   	|
-| ``actionButtons``      	| ActionButtonConfig[]             	| ``null``       	| Array of object to display action buttons inside rows                                 	|
-
+| **Name**             	| **Type**                         	| **Default**    	| **Description**                                                                       |
+|----------------------	|----------------------------------	|----------------	|-------------------------------------------------------------------------------------- |
+| ``data``              | any[]                            	| ``null``       	| An array of objects to display.                                                       |
+| ``numberRowsShown``   | number                           	| ``10``         	| Number of rows to display per page.                                                   |
+| ``rowsPerPageOptions``| any[]                            	| ``[10,20,30]`` 	| Array of integer/object values to display  inside rows per page dropdown of paginator |
+| ``rowSelectionMode``  | "none" \| "single" \| "multiple" 	| ``"none"``     	| Specifies the selection mode, valid values are  "single" and "multiple".              |
+| ``selectedRow``       | any[]                             | "none"          | Array of selected rows passed from the parent component.                              |
+| ``size``              | "small" \| "normal" \| "large"   	| ``"normal"``   	| Specifies the table size, valid values are "small","normal" and "large".              |
+| ``actionButtons``     | ActionButtonConfig[]             	| ``null``       	| Array of object to display action buttons inside rows                                 |
+| ``childActionButtons``| ActionButtonConfig[]             	| ``null``       	| Array of object to display action buttons inside child rows                           |
+| ``showPaginator``     | boolean             	            | ``false``       | Show or hide the paginator.                                                           |
+| ``disableSorting``    | boolean             	            | ``false``       | Disable sorting.                                                                      |
+| ``disableFiltering``  | boolean             	            | ``false``       | Disable filtering.                                                                    |
+| ``isLoading``         | boolean             	            | ``false``       | Displays a loading placeholder to indicate data load is in progress.                  |
+| ``showTopMenubar``    | boolean             	            | ``false``       | Show or hide top menubar.                                                             |
+| ``showGlobalSearch``  | boolean             	            | ``false``       | Show or hide global search.                                                           |
 
 
 - **Emitters:**
 
-| **Name**             	| **Parameters**            	| **Description**                                	|
-|----------------------	|---------------------------	|------------------------------------------------	|
-| ``queryParameterChange`` 	| event : TableFilterEvent  	| Callback to invoke when data is filtered.      	|
-| ``actionButtonClicked``  	| event : ActionButtonEvent 	| Callback to invoke when action button clicked. 	|
-| ``rowSelect``            	| event : any               	| Callback to invoke on selection changed.       	|
+| **Name**             	  | **Parameters**            	| **Description**                                	|
+|-----------------------	|---------------------------	|------------------------------------------------	|
+| ``queryParameterChange``| event : TableFilterEvent  	| Callback to invoke when data is filtered.      	|
+| ``actionButtonClicked`` | event : ActionButtonEvent 	| Callback to invoke when action button clicked. 	|
+| ``rowSelect``           | event : any               	| Callback to invoke on selection changed.       	|
+| ``searchKeyChange``     | event : string              | Callback to invoke on search key changed.       |
 
 ## Example Time! 🌟
 - **AppModule:**
@@ -122,10 +129,11 @@ export class AppComponent implements OnInit {
   title = 'Dynamic Table Example';
   tableData: DynamicTable<userDetils> | any;
   tableQueryParameters: DynamicTableQueryParameters | any;
-  actionButtonConfig: ActionButtonConfig[] = [];
+  tableActionButton: ActionButtonConfig[] = [];
+  isTableDataLoading!: boolean;
   constructor(private http: HttpClient) { }
   ngOnInit(): void {
-    this.actionButtonConfig = [
+    this.tableActionButton = [
       {
         buttonIdentifier: 'view',
         class: 'p-button-rounded p-button-raised',
@@ -133,16 +141,22 @@ export class AppComponent implements OnInit {
         lable: 'View',
       },
       {
-        buttonIdentifier: 'edit',
-        class: 'p-button-warning p-button-rounded p-button-raised',
-        icon: 'pi pi-file-edit',
-        lable: 'Edit',
+        buttonIdentifier: 'active',
+        class: 'p-button-success p-button-rounded p-button-raised',
+        icon: 'pi pi-trash',
+        lable: 'Active',
+        renderButton: (rowData) => {
+          return rowData.status==='deactivated';
+        }
       },
       {
-        buttonIdentifier: 'del',
+        buttonIdentifier: 'deactive',
         class: 'p-button-danger p-button-rounded p-button-raised',
         icon: 'pi pi-trash',
-        lable: 'Delete',
+        lable: 'Deactive',
+        renderButton: (rowData) => {
+          return rowData.status==='active';
+        }
       },
     ];
     this.tableQueryParameters = {
@@ -155,10 +169,12 @@ export class AppComponent implements OnInit {
     console.log(event);
   }
   getData() {
+    this.isTableDataLoading = true;
     this.http
       .post<DynamicTable<userDetails>>("api-url", this.tableQueryParameters)
       .subscribe((response) => {
           this.tableData = response.result;
+          this.isTableDataLoading = false;
       });
   }
 }
@@ -170,14 +186,14 @@ export class AppComponent implements OnInit {
   size="small"
   [numberRowsShown]="10"
   [rowsPerPageOptions]="[10, 30, 50]"
-  [headers]="tableData.headers"
   [data]="tableData.data"
-  rowSelectionMode="multiple"
-  [dataCount]="tableData.dataCount"
+  rowSelectionMode="multiple",
+  [isLoading]="isTableDataLoading"
   [actionButtons]="tableActionButton"
   (rowSelect)="handleRowSelection($event)"
   (actionButtonClicked)="handleButtonClick($event)"
-  (queryParameterChange)="handQueryParameterChange($event)"
+  (queryParameterChange)="handQueryParameterChange($event)",
+  (searchKeyChange)="handsearchKeyChange($event)",
 >
 </mh-prime-dynamic-table>
 ```
@@ -185,57 +201,70 @@ export class AppComponent implements OnInit {
 ```typescript
 export interface DynamicTable<T> {
     headers: TableHeader[];
+    childHeaders: TableHeader[];
     data: T[];
     dataCount: number;
 }
+
 export interface TableHeader {
     name: string;
     dataType: string;
     fieldName: string;
+    collapsible: boolean | null;
     filterField: string;
     isSortable: boolean;
     isFilterable: boolean;
     filterEnums?: FilterEnum[];
     objectTypeValueField?: number;
 }
+export interface HeaderGroups {
+    headers: TableHeader[];
+    collapsibleHeaders: TableHeader[];
+}
+export interface ExpandedRows {
+    [key: string]: boolean;
+}
 export interface FilterEnum {
-    value: Number;
-    label: string;
-    styleClass: string;
+    value: Number
+    label: string
+    styleClass: string
 }
 export interface FilterParameter {
     field: string;
     value: string;
     operator: string;
 }
+
 export interface SortParameter {
     field: string;
     order: string;
 }
+
 export interface DynamicTableQueryParameters {
+    // listType: string;
     pageSize: number;
     pageIndex: number;
     filterParameters: FilterParameter[];
     sortParameters: SortParameter;
 }
-export interface ActionButtonConfig {
-    lable: string;
-    icon: string;
-    class: string;
-    buttonIdentifier: string;
+export interface ActionButtonConfig<T = any> {
+    lable: string,
+    icon: string,
+    class: string,
+    buttonIdentifier: string,
+    renderButton?: (data: T) => boolean,
 }
 export interface ActionButtonEvent {
-    rowData: any;
-    buttonIdentifier: string;
+    rowData: any,
+    buttonIdentifier: string
 }
-
 ```
 ## Contribute & Share the Joy! 🌈
 Feel the urge to sprinkle some extra magic dust? We'd love to have you on board! Contributions are more than welcome. Open issues, submit pull requests, and let's make data visualization an even more delightful experience together!
 
 
 ## License: Spread the Love ❤️
-mh-prime-dynamic-table is licensed under the MIT License. Share the love, share the code! For more information, check out the [LICENSE](https://github.com/itsmanwar/mh-prime-dynamic-table?tab=MIT-1-ov-file) file.
+mh-prime-dynamic-table is licensed under the MIT License. Share the love, share the code! For more information, check out the [LICENSE]([https://choosealicense.com/licenses/mit/](https://github.com/itsmanwar/mh-prime-dynamic-table/blob/main/LICENSE)) file.
 
 
 
