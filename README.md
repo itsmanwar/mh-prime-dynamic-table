@@ -37,7 +37,7 @@ export class YourModule { }
   size="small"
   [numberRowsShown]="10"
   [rowsPerPageOptions]="[10, 30, 50]"
-  [data]="tableData.data"
+  [data]="tableData"
   rowSelectionMode="multiple",
   [isLoading]="isTableDataLoading"
   [actionButtons]="tableActionButton"
@@ -186,7 +186,7 @@ export class AppComponent implements OnInit {
   size="small"
   [numberRowsShown]="10"
   [rowsPerPageOptions]="[10, 30, 50]"
-  [data]="tableData.data"
+  [data]="tableData"
   rowSelectionMode="multiple",
   [isLoading]="isTableDataLoading"
   [actionButtons]="tableActionButton"
